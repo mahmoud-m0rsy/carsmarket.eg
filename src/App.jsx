@@ -1,34 +1,17 @@
-import { useLayoutEffect, useRef } from 'react'
-import { ArrowUpRight, Gauge, Search } from 'lucide-react'
-import gsap from 'gsap'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { AuthProvider } from './context/AuthContext'
+import { CartProvider, useCart } from './context/CartContext'
+import Navbar from './components/Navbar'
+import Hero from './components/Hero'
+import ProductGrid from './components/ProductGrid'
+import CartDrawer from './components/CartDrawer'
+import QuickView from './components/QuickView'
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 
-function App() {
-  const heroRef = useRef(null)
-
-  useLayoutEffect(() => {
-    const context = gsap.context(() => {
-      gsap.from('[data-reveal]', { y: 28, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.12 })
-    }, heroRef)
-    return () => context.revert()
-  }, [])
-
-  return (
-    <main ref={heroRef} className="min-h-screen overflow-hidden px-6 py-8 md:px-12">
-      <nav data-reveal className="mx-auto flex max-w-6xl items-center justify-between">
-        <span className="text-lg font-black tracking-[.22em] text-chrome">CARSMARKET<span className="text-racing-red">.EG</span></span>
-        <span className="hidden text-xs tracking-[.18em] text-chrome/55 sm:block">DRIVE WHAT MOVES YOU</span>
-      </nav>
-      <section className="mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center py-16">
-        <div data-reveal className="mb-5 flex items-center gap-2 text-xs font-bold tracking-[.2em] text-electric-blue"><Gauge size={16} /> THE MODERN AUTOMOTIVE MARKETPLACE</div>
-        <h1 data-reveal className="max-w-4xl text-5xl font-black leading-[.92] tracking-tight text-chrome sm:text-7xl md:text-8xl">FIND YOUR NEXT <span className="text-racing-red">DRIVE.</span></h1>
-        <p data-reveal className="mt-7 max-w-xl text-base leading-7 text-chrome/65 sm:text-lg">A fast, focused foundation for buying and selling exceptional cars in Egypt.</p>
-        <div data-reveal className="mt-10 flex flex-wrap gap-3">
-          <button className="flex items-center gap-2 bg-racing-red px-5 py-3 text-sm font-bold text-white transition hover:bg-red-500">Browse inventory <ArrowUpRight size={17} /></button>
-          <button className="metal-panel flex items-center gap-2 px-5 py-3 text-sm font-bold text-chrome transition hover:border-electric-blue/50"><Search size={17} /> Advanced search</button>
-        </div>
-      </section>
-    </main>
-  )
+function Storefront() {
+  const [quickView, setQuickView] = useState(null); const [adminOpen, setAdminOpen] = useState(false); const { count, setCartOpen } = useCart()
+  useEffect(() => { document.title = adminOpen ? 'Admin Dashboard | Cars Market' : 'Cars Market | Built for the Drive'; let meta = document.querySelector('meta[name="description"]'); if (!meta) { meta = document.createElement('meta'); meta.name = 'description'; document.head.appendChild(meta) }; meta.content = 'Cars Market Egypt — curated performance parts, premium wheels, and automotive essentials.' }, [adminOpen])
+  if (adminOpen) return <Suspense fallback={<main className="grid min-h-screen place-items-center bg-carbon text-gold">Loading control room…</main>}><AdminDashboard onClose={() => setAdminOpen(false)} /></Suspense>
+  return <><Navbar onAdmin={() => setAdminOpen(true)} /><Hero /><ProductGrid onQuickView={setQuickView} /><section className="shell border-t border-white/10 py-16 text-center"><p className="eyebrow">NO COMPROMISE</p><h2 className="section-title mx-auto max-w-2xl">MADE FOR THOSE WHO NEVER TAKE THE LONG WAY HOME.</h2></section><footer className="border-t border-white/10 py-8"><div className="shell flex flex-col justify-between gap-3 text-xs text-white/35 sm:flex-row"><span>© 2026 CARS MARKET. EGYPT.</span><span>PREMIUM AUTOMOTIVE GOODS</span></div></footer><QuickView product={quickView} onClose={() => setQuickView(null)} /><CartDrawer />{count > 0 && <button className="mobile-cart" onClick={() => setCartOpen(true)}>Cart <b>{count}</b></button>}</>
 }
-
-export default App
+export default function App() { return <AuthProvider><CartProvider><Storefront /></CartProvider></AuthProvider> }
