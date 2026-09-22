@@ -12,7 +12,7 @@ export default function Hero() {
     return () => ctx.revert()
   }, [])
   return <section ref={root} id="top" className="hero-section"><div className="shell relative grid min-h-[600px] items-end overflow-hidden py-20 lg:min-h-[690px] lg:py-28">
-    <div className="relative z-10 max-w-4xl"><div className="hero-copy mb-5 flex items-center gap-2 text-xs font-bold tracking-[.2em] text-gold"><Sparkles size={14} /> CURATED AUTOMOTIVE GOODS</div>
+    <div className="relative z-10 max-w-4xl"><div className="hero-copy mb-5 flex items-center gap-2 text-xs font-bold tracking-[.2em] text-red-500"><Sparkles size={14} /> CURATED AUTOMOTIVE GOODS</div>
       <h1 className="hero-title"><span className="clip"><span className="hero-line">BUILT FOR</span></span><span className="clip"><span className="hero-line text-steel">THE <em>DRIVE.</em></span></span></h1>
       <div className="hero-copy mt-8 flex flex-wrap items-center gap-5"><p className="max-w-md text-base leading-7 text-white/60">Precision pieces for the people who see every journey as a chance to leave a mark.</p><a className="cta" href="#shop">Explore collection <ArrowDownRight size={18} /></a></div>
     </div>
