@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext(null)
-const ADMIN_EMAIL = 'mahmoudmorsy9399@gmail.com'
+const ADMIN_EMAIL = 'yassinnasserr75@gmail.com'
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)

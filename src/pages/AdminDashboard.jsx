@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ImagePlus, Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { createProduct, deleteProduct, fetchOrders, fetchProducts, fetchWhatsappNumber, saveWhatsappNumber, subscribeToOrders, updateProduct, uploadProductImage } from '../services/supabaseService'
+import { createProduct, DEFAULT_WHATSAPP_NUMBER, deleteProduct, fetchOrders, fetchProducts, fetchWhatsappNumber, saveWhatsappNumber, subscribeToOrders, updateProduct, uploadProductImage } from '../services/supabaseService'
 
 const categories = ['Accessories', 'Clothes']
 const blank = { title: '', description: '', category: categories[0], price: '', image_url: '', in_stock: true }
@@ -14,7 +14,7 @@ export default function AdminDashboard({ onClose }) {
   const [editing, setEditing] = useState(null)
   const [uploadMode, setUploadMode] = useState('file')
   const [uploading, setUploading] = useState(false)
-  const [whatsapp, setWhatsapp] = useState('')
+  const [whatsapp, setWhatsapp] = useState(DEFAULT_WHATSAPP_NUMBER)
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -24,7 +24,7 @@ export default function AdminDashboard({ onClose }) {
     if (!isAdmin) return undefined
     load()
     fetchOrders().then(setOrders).catch((err) => setError(err.message))
-    fetchWhatsappNumber().then((value) => value && setWhatsapp(value)).catch(() => {})
+    fetchWhatsappNumber().then((value) => setWhatsapp(value || DEFAULT_WHATSAPP_NUMBER)).catch(() => setWhatsapp(DEFAULT_WHATSAPP_NUMBER))
     return subscribeToOrders((order) => setOrders((current) => [order, ...current]))
   }, [isAdmin])
 
@@ -53,6 +53,6 @@ export default function AdminDashboard({ onClose }) {
     </div>
     <section className="metal-panel mt-7 rounded-xl p-6"><div className="mb-5"><p className="eyebrow">PERFORMANCE SNAPSHOT</p><h2 className="text-xl font-bold">Store analytics</h2></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div><p className="text-xs uppercase tracking-wider text-white/45">Monthly sales</p><p className="mt-1 text-2xl font-black text-red-500">{analytics.monthlyCount}</p></div><div><p className="text-xs uppercase tracking-wider text-white/45">Monthly revenue</p><p className="mt-1 text-2xl font-black text-red-500">EGP {analytics.monthlyRevenue.toLocaleString()}</p></div><div><p className="text-xs uppercase tracking-wider text-white/45">Stock status</p><p className="mt-1 text-sm font-bold">{analytics.inStock} in stock · {analytics.outOfStock} out</p></div><div><p className="text-xs uppercase tracking-wider text-white/45">Top seller</p><p className="mt-1 truncate text-sm font-bold" title={analytics.topSeller}>{analytics.topSeller}</p></div></div></section>
     <section className="metal-panel mt-7 rounded-xl p-6"><h2 className="text-xl font-bold">Live orders</h2>{orders.map((order) => <div className="mt-2 rounded border border-white/10 p-3 text-sm" key={order.id}>{order.customer_name} · {order.phone} · EGP {Number(order.total_price || 0).toLocaleString()}</div>)}</section>
-    <section className="metal-panel mt-7 rounded-xl p-6"><h2 className="text-xl font-bold">Checkout settings</h2><div className="mt-4 flex gap-3"><input className="flex-1" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="WhatsApp number" /><button className="cta" onClick={async () => { try { await saveWhatsappNumber(whatsapp); setNotice('WhatsApp number saved.') } catch (err) { setError(err.message) } }}>Save</button></div></section>
+    <section className="metal-panel mt-7 rounded-xl p-6"><h2 className="text-xl font-bold">Checkout settings</h2><div className="mt-4 flex gap-3"><input className="flex-1" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="WhatsApp number" /><button className="cta" onClick={async () => { setError(''); try { await saveWhatsappNumber(whatsapp); setNotice('WhatsApp number saved.') } catch (err) { setError(err.message) } }}>Save</button></div></section>
   </main>
 }
