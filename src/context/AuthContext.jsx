@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext(null)
-const ADMIN_EMAIL = 'yassinnasserr75@gmail.com'
+const ADMIN_EMAIL = 'carsmarketeg2@gmail.com'
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
@@ -25,7 +25,8 @@ export function AuthProvider({ children }) {
 
   const signOut = () => supabase?.auth.signOut()
   const user = session?.user ?? null
-  const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL
+  const isGoogleUser = user?.app_metadata?.provider === 'google' || user?.app_metadata?.providers?.includes('google') || user?.identities?.some((identity) => identity.provider === 'google')
+  const isAdmin = Boolean(isGoogleUser && user?.email?.toLowerCase() === ADMIN_EMAIL)
 
   return <AuthContext.Provider value={{ user, session, loading, isAdmin, signInWithGoogle, signOut }}>{children}</AuthContext.Provider>
 }
