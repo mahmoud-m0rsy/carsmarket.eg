@@ -14,7 +14,7 @@ export function CartProvider({ children }) {
 
   const addItem = (product) => {
     setItems((current) => {
-      const existing = current.find((item) => item.id === product.id)
+      const existing = current.find((item) => item.id === product.id && item.selectedSize === product.selectedSize)
       return existing
         ? current.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
         : [...current, { ...product, quantity: 1 }]
@@ -25,7 +25,7 @@ export function CartProvider({ children }) {
   const removeItem = (id) => setItems((current) => current.filter((item) => item.id !== id))
   const checkout = async ({ name, phone, governorate, address }) => {
     if (!items.length) throw new Error('Your cart is empty.')
-    const orderItems = items.map(({ id, name: productName, price, quantity }) => ({ product_id: id, name: productName, price, quantity }))
+    const orderItems = items.map(({ id, name: productName, price, quantity, selectedSize }) => ({ product_id: id, name: productName, price, quantity, size: selectedSize || null }))
     let number = DEFAULT_WHATSAPP_NUMBER
     try { number = (await fetchWhatsappNumber()) || number } catch { /* use configured fallback */ }
     const order = await createOrder({ customer_name: name, phone, whatsapp_phone: number, governorate, address, items: orderItems, total_price: totals.subtotal, payment_method: 'Cash on Delivery' })

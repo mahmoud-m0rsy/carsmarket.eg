@@ -1,21 +1,10 @@
-import { ShoppingBag, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ShoppingBag, X } from 'lucide-react'
+import { useState } from 'react'
 import { useCart } from '../context/CartContext'
 
 export default function QuickView({ product, onClose }) {
-  const { addItem } = useCart()
+  const { addItem } = useCart(); const [imageIndex, setImageIndex] = useState(0); const [selectedSize, setSelectedSize] = useState('')
   if (!product) return null
-
-  return <div className="modal-backdrop" onMouseDown={onClose}>
-    <section className="quick-modal" onMouseDown={(event) => event.stopPropagation()} aria-modal="true" role="dialog">
-      <button className="icon-button absolute right-4 top-4 z-10" onClick={onClose} aria-label="Close product preview"><X /></button>
-      <img loading="lazy" src={product.image} alt={product.name} />
-      <div className="p-7">
-        <p className="eyebrow">{product.category}</p>
-        <h2 className="mt-2 text-3xl font-black">{product.name}</h2>
-        <p className="mt-4 font-mono text-lg text-red-500">EGP {product.price.toLocaleString()}</p>
-        <p className="mt-5 text-sm leading-6 text-white/60">Engineered to make every detail of your build feel intentional. Sourced for performance, finished for the street.</p>
-        <button className="cta mt-7" onClick={() => { addItem(product); onClose() }}><ShoppingBag size={17} /> Add to cart</button>
-      </div>
-    </section>
-  </div>
+  const images = product.images?.length ? product.images : [product.image]; const isClothing = product.category === 'Clothes'; const canAdd = !isClothing || selectedSize
+  return <div className="modal-backdrop" onMouseDown={onClose}><section className="quick-modal" onMouseDown={(event) => event.stopPropagation()} aria-modal="true" role="dialog"><button className="icon-button absolute right-4 top-4 z-10" onClick={onClose} aria-label="Close product preview"><X /></button><div className="relative"><img loading="lazy" className="h-full w-full object-cover" src={images[imageIndex]} alt={product.name} />{images.length > 1 && <><button className="icon-button absolute left-3 top-1/2 -translate-y-1/2" onClick={() => setImageIndex((imageIndex - 1 + images.length) % images.length)} aria-label="Previous image"><ChevronLeft /></button><button className="icon-button absolute right-3 top-1/2 -translate-y-1/2" onClick={() => setImageIndex((imageIndex + 1) % images.length)} aria-label="Next image"><ChevronRight /></button></>}</div><div className="p-7"><div className="mb-4 flex gap-2 overflow-x-auto">{images.map((image, index) => <button type="button" key={image} onClick={() => setImageIndex(index)} className={`h-14 w-14 flex-none overflow-hidden rounded border ${index === imageIndex ? 'border-red-500' : 'border-white/10'}`}><img loading="lazy" className="h-full w-full object-cover" src={image} alt="" /></button>)}</div><p className="eyebrow">{product.category}</p><h2 className="mt-2 text-3xl font-black">{product.name}</h2><p className="mt-4 font-mono text-lg text-red-500">EGP {product.price.toLocaleString()}</p>{isClothing && <div className="mt-4"><p className="mb-2 text-xs uppercase tracking-wider text-white/50">Choose size</p><div className="flex gap-2">{product.sizes.map((size) => <button type="button" key={size} onClick={() => setSelectedSize(size)} className={`rounded border px-3 py-2 text-xs ${selectedSize === size ? 'border-red-500 bg-red-500 text-black' : 'border-white/15 text-white/60'}`}>{size}</button>)}</div></div>}<p className="mt-5 text-sm leading-6 text-white/60">{product.description || 'Engineered to make every detail of your build feel intentional.'}</p><button disabled={!canAdd} className="cta mt-7 disabled:cursor-not-allowed disabled:opacity-40" onClick={() => { addItem({ ...product, selectedSize }); onClose() }}><ShoppingBag size={17} /> Add to cart</button></div></section></div>
 }
